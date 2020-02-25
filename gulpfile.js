@@ -1,135 +1,74 @@
-"use strict";
-
-// Load plugins
-const autoprefixer = require("gulp-autoprefixer");
-const browsersync = require("browser-sync").create();
-const cleanCSS = require("gulp-clean-css");
-const del = require("del");
 const gulp = require("gulp");
-const header = require("gulp-header");
-const merge = require("merge-stream");
-const plumber = require("gulp-plumber");
-const rename = require("gulp-rename");
-const sass = require("gulp-sass");
-const uglify = require("gulp-uglify");
+const gap = require("gulp-append-prepend");
 
-// Load package.json for banner
-const pkg = require('./package.json');
+gulp.task("licenses", async function() {
+  // this is to add Creative Tim licenses in the production mode for the minified js
+  gulp
+    .src("build/static/js/*chunk.js", { base: "./" })
+    .pipe(
+      gap.prependText(`/*!
 
-// Set the banner content
-const banner = ['/*!\n',
-  ' * Start Bootstrap - <%= pkg.title %> v<%= pkg.version %> (<%= pkg.homepage %>)\n',
-  ' * Copyright 2013-' + (new Date()).getFullYear(), ' <%= pkg.author %>\n',
-  ' * Licensed under <%= pkg.license %> (https://github.com/BlackrockDigital/<%= pkg.name %>/blob/master/LICENSE)\n',
-  ' */\n',
-  '\n'
-].join('');
+=========================================================
+* Boost Tailwind - v1.0.0
+=========================================================
 
-// BrowserSync
-function browserSync(done) {
-  browsersync.init({
-    server: {
-      baseDir: "./"
-    },
-    port: 3000
-  });
-  done();
-}
+* Product Page: https://demos.creative-tim.com/tailwindcss-starter-project/#/presentation
+* Copyright 2019 Creative Tim (http://www.creative-tim.com)
 
-// BrowserSync reload
-function browserSyncReload(done) {
-  browsersync.reload();
-  done();
-}
+* Coded by Creative Tim
 
-// Clean vendor
-function clean() {
-  return del(["./vendor/"]);
-}
+=========================================================
 
-// Bring third party dependencies from node_modules into vendor directory
-function modules() {
-  // Bootstrap JS
-  var bootstrapJS = gulp.src('./node_modules/bootstrap/dist/js/*')
-    .pipe(gulp.dest('./vendor/bootstrap/js'));
-  // Font Awesome CSS
-  var fontAwesomeCSS = gulp.src('./node_modules/@fortawesome/fontawesome-free/css/**/*')
-    .pipe(gulp.dest('./vendor/fontawesome-free/css'));
-  // Font Awesome Webfonts
-  var fontAwesomeWebfonts = gulp.src('./node_modules/@fortawesome/fontawesome-free/webfonts/**/*')
-    .pipe(gulp.dest('./vendor/fontawesome-free/webfonts'));
-  // jQuery Easing
-  var jqueryEasing = gulp.src('./node_modules/jquery.easing/*.js')
-    .pipe(gulp.dest('./vendor/jquery-easing'));
-  // jQuery
-  var jquery = gulp.src([
-      './node_modules/jquery/dist/*',
-      '!./node_modules/jquery/dist/core.js'
-    ])
-    .pipe(gulp.dest('./vendor/jquery'));
-  return merge(bootstrapJS, fontAwesomeCSS, fontAwesomeWebfonts, jquery, jqueryEasing);
-}
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-// CSS task
-function css() {
-  return gulp
-    .src("./scss/**/*.scss")
-    .pipe(plumber())
-    .pipe(sass({
-      outputStyle: "expanded",
-      includePaths: "./node_modules",
-    }))
-    .on("error", sass.logError)
-    .pipe(autoprefixer({
-      cascade: false
-    }))
-    .pipe(header(banner, {
-      pkg: pkg
-    }))
-    .pipe(gulp.dest("./css"))
-    .pipe(rename({
-      suffix: ".min"
-    }))
-    .pipe(cleanCSS())
-    .pipe(gulp.dest("./css"))
-    .pipe(browsersync.stream());
-}
+*/`)
+    )
+    .pipe(gulp.dest("./", { overwrite: true }));
 
-// JS task
-function js() {
-  return gulp
-    .src([
-      './js/*.js',
-      '!./js/*.min.js'
-    ])
-    .pipe(uglify())
-    .pipe(header(banner, {
-      pkg: pkg
-    }))
-    .pipe(rename({
-      suffix: '.min'
-    }))
-    .pipe(gulp.dest('./js'))
-    .pipe(browsersync.stream());
-}
+  // this is to add Creative Tim licenses in the production mode for the minified html
+  gulp
+    .src("build/index.html", { base: "./" })
+    .pipe(
+      gap.prependText(`<!--
 
-// Watch files
-function watchFiles() {
-  gulp.watch("./scss/**/*", css);
-  gulp.watch(["./js/**/*", "!./js/**/*.min.js"], js);
-  gulp.watch("./**/*.html", browserSyncReload);
-}
+=========================================================
+* Boost Tailwind - v1.0.0
+=========================================================
 
-// Define complex tasks
-const vendor = gulp.series(clean, modules);
-const build = gulp.series(vendor, gulp.parallel(css, js));
-const watch = gulp.series(build, gulp.parallel(watchFiles, browserSync));
+* Product Page: https://demos.creative-tim.com/tailwindcss-starter-project/#/presentation
+* Copyright 2019 Creative Tim (http://www.creative-tim.com)
 
-// Export tasks
-exports.css = css;
-exports.js = js;
-exports.clean = clean;
-exports.vendor = vendor;
-exports.build = build;
-exports.watch = watch;
-exports.default = build;
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+-->`)
+    )
+    .pipe(gulp.dest("./", { overwrite: true }));
+
+  // this is to add Creative Tim licenses in the production mode for the minified css
+  gulp
+    .src("build/static/css/*chunk.css", { base: "./" })
+    .pipe(
+      gap.prependText(`/*!
+
+=========================================================
+* Boost Tailwind - v1.0.0
+=========================================================
+
+* Product Page: https://demos.creative-tim.com/tailwindcss-starter-project/#/presentation
+* Copyright 2019 Creative Tim (http://www.creative-tim.com)
+
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+*/`)
+    )
+    .pipe(gulp.dest("./", { overwrite: true }));
+  return;
+});
